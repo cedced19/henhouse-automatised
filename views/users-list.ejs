@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flydocument Encrypted | <%=texts.USERS_LIST %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Flydocument Encrypted</h1>
+    <p><%=texts.USERS_LIST_MSG %> <a href="/users/new"><%=texts.HERE %></a>.</p>
+    <table>
+      <tr>
+        <th><%=texts.EMAILS %></th>
+        <th><%=texts.ACTIONS %></th>
+      </tr>
+      <% for(var i=0; i<users.length; i++) {%>
+        <tr>
+          <td><%= users[i].email %></td>
+          <td><a href="/users/delete/<%= users[i].email %>">✖</a></td>
+        </tr>
+      <% } %>
+      <p class="footer">
+        <a href="/"><%=texts.HOME_PAGE %></a>
+        <span><%=texts.USERS_LIST %></span>
+        <a href="/logout"><%=texts.LOGOUT %></a>
+      </p>
+    </table>
+
+  </body>
+</html>

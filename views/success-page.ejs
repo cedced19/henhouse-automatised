@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flydocument Encrypted | <%if (success == 'user-saved') { %><%=texts.USER_SAVED %><% } else if (success == 'user-deleted') { %><%=texts.USER_DELETED %><% } else if (success == 'user-not-deleted') { %><%=texts.USER_NOT_DELETED %><% } %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Flydocument Encrypted</h1>
+    <h2>
+    <%if (success == 'user-saved') { %>
+      <%=texts.USER_SAVED_MSG %>
+    <% } else if (success == 'user-deleted') { %>
+      <%=texts.USER_DELETED_MSG %>
+    <% } else if (success == 'user-not-deleted') { %>
+      <%=texts.USER_NOT_DELETED_MSG %>
+    <% } %>
+    </h2>
+    <p class="footer">
+      <a href="/"><%=texts.HOME_PAGE %></a>
+      <a href="/users/"><%=texts.USERS_LIST %></a>
+      <a href="/logout"><%=texts.LOGOUT %></a>
+    </p>
+  </body>
+</html>

@@ -1,43 +1,60 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <title>Henhouse Automatised</title>
-        <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
-        <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="/stylesheets/styles.css">
-        <meta name="theme-color" content="#7A828D">
-        <meta name="msapplication-navbutton-color" content="#7A828D">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    </head>
-    <body ng-app="HenhouseAutomatised" ng-swipe-right="$menu.hide()" ng-swipe-left="$menu.show()">
-        <div class="site-container">
-            <div class="site-pusher">
-                <header class="header">
-                    <a class="header-icon" ng-click="$menu.show()"></a>
-                    <nav class="menu">
-                        <a ng-click="$menu.hide('/')"  ng-show="user" ng-class="{active: nav == 'controls'}"><span class="icon-sliders"></span> Controls</a>
-                        <a ng-click="$menu.hide('/users')"  ng-show="user" ng-class="{active: nav == 'users'}"><span class="icon-user"></span> Users</a>
-                        <a ng-click="$menu.logout()"  ng-show="user"><span class="icon-off"></span> Logout</a>
-                        <a ng-click="$menu.hide('/login')" ng-show="nav === 'signup'"><span class="icon-user"></span> Login</a>
-                    </nav>
-                    <span class="header-logo">Henhouse Automatised</span>
-                </header>
+  <head>
+    <title>Henhouse Automatised | <%=texts.HOME_PAGE %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Henhouse Automatised</h1>
+    <p><%=texts.WELCOME_MSG %> Henhouse Automatised.</p>
+    <p>
+      <%=texts.POSITION_MSG %>:
+      <span id="position-up"><%=texts.POSITION_UP %></span>
+      <span id="position-down"><%=texts.POSITION_DOWN %></span>
+    </p>
+    <a id="toggle" class="btn"><%=texts.UPDATE_POSITION %></a>
 
-                <div class="site-content">
-                    <div class="container" autoscroll="true" ng-view>
-                        <noscript>
-                            <h1>Houston, we have a problem.</h1>
-                            <p>You must enable Javascript to use this applications.</p>
-                        </noscript>
-                    </div>
-                </div>
-
-                <div class="site-cache" ng-click="$menu.hide()"></div>
-            </div>
-        </div>
-
-        <script type="text/javascript" src="/javascripts/scripts.js"></script>
-    </body>
+    <p class="footer">
+      <span><%=texts.HOME_PAGE %></span>
+      <a href="/users/"><%=texts.USERS_LIST %></a>
+      <a href="/logout"><%=texts.LOGOUT %></a>
+    </p>
+    <script
+			  src="https://code.jquery.com/jquery-2.2.4.min.js"
+			  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+			  crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      $(function() {
+        $.ajax({
+          url: '/api/door/'
+        })
+        .done(function(data) {
+          if (data.position === 'up') {
+             $('#position-down').hide();
+          } else {
+             $('#position-up').hide();
+          }
+        })
+        var btn = $('#toggle');
+        btn.click(function() {
+          btn.hide();
+          $.ajax({
+            url: '/api/door/toggle'
+          })
+          .done(function(data) {
+            if (data.position === 'up') {
+               $('#position-down').hide();
+               $('#position-up').show();
+            } else {
+               $('#position-up').hide();
+               $('#position-down').show();
+            }
+          })
+          .always(function() {
+            btn.show();
+          });
+        });
+      });
+    </script>
+  </body>
 </html>

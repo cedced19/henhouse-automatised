@@ -1,8 +1,10 @@
-// test if user is authenticated
 module.exports = function(req, res, next) {
-   if (req.isAuthenticated()) {
-        next();
-    } else{
-        res.redirect('/login');
-    }
+  var config = require('../configuration.json');
+  if (config.users.length == 0) {
+    next();
+  } else if (!req.isAuthenticated()) {
+    res.redirect('/login');
+  } else {
+    next();
+  }
 };

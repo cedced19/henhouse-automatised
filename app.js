@@ -4,23 +4,22 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var compress = require('compression');
-var minify = require('express-minify');
+var i18n = require('i18n-express');
+var compression = require('compression');
+var minifyTemplate = require('express-beautify').minify;
+var minifyCSS = require('express-minify');
 
 var passport = require('passport');
-var hash = require('password-hash-and-salt');
 var flash = require('connect-flash');
 var helmet = require('helmet');
 var session = require('express-session');
 
-var FileStore = require('session-file-store')(session);
+var MongoDBStore = require('connect-mongodb-session')(session);
 var LocalStrategy = require('passport-local').Strategy;
 
 var index = require('./routes/index');
 var users = require('./routes/users-api');
-var registrants = require('./routes/registrants-api');
-var version = require('./routes/version-api');
+var door = require('./routes/door-api');
 
 var app = express();
 
@@ -28,80 +27,90 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+if (app.get('env') === 'development') {
+  app.use(logger('dev'));
+} else {
+  app.use(compression());
+  app.use(minifyTemplate());
+  app.use(minifyCSS());
+}
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(compress());
-
-if (app.get('env') === 'development') {
-  app.use(logger('dev'));
-} else {
-  app.use(minify());
-}
-
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(i18n({
+  translationsPath: path.join(__dirname, 'i18n'),
+  cookieLangName: 'language',
+  paramLangName: 'lang',
+  siteLangs: ['en','fr']
+}));
 
 app.use(helmet());
 app.use(flash());
 app.use(session({
-    secret: 'cocococodek',
+    secret: 'open the door to the chickens',
     name: 'henhouse-automatised-session',
     proxy: false,
     resave: true,
     saveUninitialized: true,
-    store:  new FileStore({ path: './tmp/sessions', logFn: function () {} })
+    store: new MongoDBStore({
+      uri: 'mongodb://localhost:27017/flydocument-encrypted',
+      collection: 'sessions'
+    })
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', index);
-app.use('/api/version', version);
-app.use('/api/users', users);
-app.use('/api/registrants', registrants);
+app.use('/users', users);
+app.use('/api/door', door);
+
+var getUser = function (config, email) {
+  for (var i in config.users) {
+    if (config.users[i].email == email)  {
+      return config.users[i];
+    }
+  }
+  return false;
+};
+
+var hash = require('password-hash-and-salt');
 
 // authentication
-passport.serializeUser(function(model, done) {
-      done(null, model.id);
+passport.serializeUser(function(user, done) {
+      done(null, user.email);
 });
 
-passport.deserializeUser(function(id, done) {
-      app.models.users.findOne({ id: id } , function (err, model) {
-          delete model.password;
-          done(err, model);
-      });
+passport.deserializeUser(function(email, done) {
+      var config = require('./configuration.json');
+      var user = getUser(config, email);
+      done(null, {email: user.email});
 });
 
 // define local strategy
 passport.use('local', new LocalStrategy({
-      usernameField: 'name',
-      passwordField: 'password'
+      usernameField: 'email',
+      passwordField: 'password',
+      passReqToCallback: true
 },
-function(name, password, done) {
+function(req, email, password, done) {
         // search in database
-        app.models.users.findOne({ name: name }, function (err, model) {
-          if (err) { return done(err); }
-          if (!model) {
-            return done(null, false, { message: 'Incorrect name.' });
+        var config = require('./configuration.json');
+        var user = getUser(config, email);
+        if (!user) {
+          return done(null, false, req.flash('message', 'invalid-email'));
+        }
+        hash(password).verifyAgainst(user.password, function(err, verified) {
+          if(err || !verified) {
+            return done(null, false, req.flash('message', 'invalid-password'));
+          } else {
+            return done(null, {email: email});
           }
-          // test password
-          hash(password).verifyAgainst(model.password, function(err, verified) {
-              if(err || !verified) {
-                return done(null, false, {
-                    message: 'Invalid password.'
-                });
-              } else {
-                var returnmodel = {
-                    email: model.email,
-                    id: model.id
-                  };
-                  return done(null, returnmodel, {
-                    message: 'Logged in successfully.'
-                  });
-              }
-          });
         });
 }));
 
@@ -112,28 +121,19 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
-  });
-}
-
-// production error handler
-// no stacktraces leaked to user
+// error handler
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+  var code = (err.status || 500);
+
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.code = code;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+
+  // render the error page
+  res.status(code);
+  res.render('error');
 });
 
 module.exports = app;

@@ -1,51 +1,79 @@
 var express = require('express');
 var router = express.Router();
-var auth = require('../policies/auth.js');
+var auth = require('../policies/auth');
+var fs = require('fs');
+var hash = require('password-hash-and-salt');
+var config = require('../configuration.json');
 
-/* GET Users */
-router.get('/', auth, function(req, res, next) {
-    req.app.models.users.find().exec(function(err, models) {
-        if(err) return next(err);
-        models.forEach(function(model){
-            delete model.password;
+var getUser = function (email) {
+  for (var i in config.users) {
+    if (config.users[i].email == email) {
+      return {user: config.users[i], key: i };
+    }
+  }
+  return false;
+};
+
+var saveConfiguration = function (cb) {
+  fs.writeFile('./configuration.json', JSON.stringify(config), cb);
+};
+
+/* GET Users: get all users */
+router.get('/', auth, function(req, res) {
+    res.locals.users = config.users;
+    res.render('users-list');
+});
+
+/* GET Delete user: delete an user */
+router.get('/delete/:email', auth, function(req, res) {
+    if (req.user.email == req.params.email) {
+      res.locals.success = 'user-not-deleted';
+      res.render('success-page');
+    } else {
+      var user = getUser(req.params.email);
+      config.users.splice(user.key, 1);
+      saveConfiguration(function (err) {
+        if (err) {
+          err = new Error('Error deleting the user.');
+          err.status = 500;
+          return next(err);
+        }
+        res.locals.success = 'user-deleted';
+        res.render('success-page');
+      });
+
+    }
+});
+
+/* GET New user: create new account */
+router.get('/new/', auth, function(req, res) {
+    res.locals.connected = (config.users.length == 0);
+    res.render('new-account');
+});
+
+/* POST New user: save new user */
+router.post('/new/', auth, function(req, res, next) {
+    if (!getUser(req.body.email)) {
+      hash(req.body.password).hash(function(err, hash) {
+        config.users.push({
+          password: hash,
+          email: req.body.email
         });
-        res.json(models);
-    });
-});
-
-/* POST Users: create a user */
-router.post('/', auth, function(req, res, next) {
-    req.app.models.users.create(req.body, function(err, model) {
-        if(err) return next(err);
-        res.json(model);
-    });
-});
-
-/* GET User */
-router.get('/:id', auth, function(req, res, next) {
-    req.app.models.users.findOne({ id: req.params.id }, function(err, model) {
-        if(err) return next(err);
-        if(model === '' || model === null || model === undefined) return next(err);
-        delete model.password;
-        res.json(model);
-    });
-});
-
-/* DELETE User */
-router.delete('/:id', auth, function(req, res, next) {
-    req.app.models.users.destroy({ id: req.params.id }, function(err) {
-        if(err) return next(err);
-        res.json({ status: true });
-    });
-});
-
-/* PUT User */
-router.put('/:id', auth, function(req, res, next) {
-    delete req.body.id;
-    req.app.models.users.update({ id: req.params.id }, req.body, function(err, model) {
-        if(err) return next(err);
-        res.json(model[0]);
-    });
+        saveConfiguration(function(err) {
+            if(err) {
+              err = new Error('Error saving the new user.');
+              err.status = 500;
+              return next(err);
+            }
+            res.locals.success = 'user-saved';
+            res.render('success-page');
+        });
+      });
+    } else {
+      var err = new Error('Email already exists.');
+      err.status = 400;
+      return next(err);
+    }
 });
 
 module.exports = router;

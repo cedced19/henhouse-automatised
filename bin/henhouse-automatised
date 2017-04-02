@@ -5,14 +5,14 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('pouicpouic:server');
+var debug = require('debug')('henhouse-automatised:server');
 var http = require('http');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '7779');
+var port = require('env-port')('7779');
 app.set('port', port);
 
 /**
@@ -25,45 +25,11 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-var models = require('../models');
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+console.log(require('server-welcome')(port, 'Henhouse Automatised'));
 
-models.waterline.initialize(models.config, function(err, models) {
-  if(err) throw err;
-  //  console.log(models.collections);
-  app.models = models.collections;
-  app.connections = models.connections;
-
-  // start Server
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
-});
-
-/**
- * Build javascript client file.
- */
-
-require('../build/prod')();
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
 
 /**
  * Event listener for HTTP server "error" event.

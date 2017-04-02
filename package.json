@@ -1,80 +1,28 @@
 {
   "name": "henhouse-automatised",
   "version": "0.0.0",
-  "description": "A webcam system to watch my chickens.",
-  "keywords": [
-    "cli",
-    "web",
-    "door",
-    "hen",
-    "app",
-    "chickens",
-    "automatised"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/cedced19/henhouse-automatised"
-  },
-  "bugs": {
-    "url": "https://github.com/cedced19/henhouse-automatised/issues"
-  },
-  "homepage": "https://github.com/cedced19/henhouse-automatised",
   "scripts": {
-    "start": "node ./bin/henhouse-automatised",
-    "dev": "node ./build/dev",
-    "prod": "node ./build/prod",
-    "test": "mocha --recursive --ui tdd --timeout 50000"
-  },
-  "bin": {
-    "pouicpouic": "bin/henhouse-automatised"
+    "start": "node ./bin/henhouse-automatised"
   },
   "dependencies": {
-    "angular": "^1.4.5",
-    "angular-route": "^1.4.5",
-    "angular-sanitize": "^1.4.5",
-    "angular-touch": "^1.4.5",
-    "body-parser": "~1.13.2",
-    "browserify": "^13.0.0",
-    "check-update-github": "0.0.3",
-    "compression": "^1.5.2",
+    "body-parser": "~1.16.0",
+    "compression": "^1.6.2",
     "connect-flash": "^0.1.1",
-    "cookie-parser": "~1.3.5",
-    "debug": "^2.2.0",
-    "ejs": "~2.3.3",
-    "express": "~4.13.1",
-    "express-minify": "^0.1.6",
-    "express-session": "^1.11.3",
-    "helmet": "^0.10.0",
-    "morgan": "~1.6.1",
-    "ng-notie": "0.0.1",
-    "passport": "^0.3.0",
+    "connect-mongodb-session": "^1.3.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.0",
+    "ejs": "~2.5.5",
+    "env-port": "0.0.0",
+    "express": "~4.14.1",
+    "express-beautify": "^0.1.3",
+    "express-minify": "^0.2.0",
+    "express-session": "^1.15.1",
+    "helmet": "^3.5.0",
+    "i18n-express": "^1.1.2",
+    "morgan": "~1.7.0",
+    "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "password-hash-and-salt": "^0.1.3",
-    "sails-disk": "^0.10.8",
-    "semver": "^5.1.0",
-    "serve-favicon": "~2.3.0",
-    "session-file-store": "0.0.18",
-    "uglifyify": "^3.0.1",
-    "waterline": "^0.10.26"
-  },
-  "author": {
-    "name": "Cédric",
-    "email": "cedced19@gmail.com",
-    "url": "https://github.com/cedced19"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://cedced19.github.io/license/"
-    }
-  ],
-  "devDependencies": {
-    "assert": "^1.3.0",
-    "browser-sync": "^2.11.2",
-    "chai": "^3.4.1",
-    "mocha": "^2.3.4",
-    "sails-memory": "^0.10.5",
-    "supertest": "^1.1.0",
-    "watchify": "^3.7.0"
+    "serve-favicon": "~2.3.2",
+    "server-welcome": "0.0.0"
   }
 }
