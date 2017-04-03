@@ -1,0 +1,15 @@
+[Unit]
+Description=Henhouse Automatised Cronjobs
+After=syslog.target network.target
+
+[Service]
+ExecStart=/home/pi/.nvm/versions/node/v7.8.0/bin/node /node/app/cronjobs.js
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=henhouse-automatised-cronjobs
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

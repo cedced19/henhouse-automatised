@@ -1,0 +1,15 @@
+[Unit]
+Description=Henhouse Automatised
+After=syslog.target network.target mongodb.service
+
+[Service]
+ExecStart=/home/pi/.nvm/versions/node/v7.8.0/bin/node /node/app/bin/henhouse-automatised
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=henhouse-automatised
+Environment=NODE_ENV=production PORT=7779
+
+[Install]
+WantedBy=multi-user.target

@@ -8,7 +8,6 @@ var toggle = require('../lib/toggle.js');
 /* GET Informations */
 router.get('/', auth, function(req, res, next) {
   fs.readFile(join(__dirname, '../status.json'), function (err, data) {
-    console.log(err)
     if (err) {
       err = new Error('Cannot get the current status ot the door.');
       err.status = 500;
