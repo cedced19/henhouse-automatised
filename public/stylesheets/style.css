@@ -137,3 +137,12 @@ td a {
   background-color: #6cb0de;
   color: #0c1721;
 }
+
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+  .footer {
+    display: grid;
+  }
+}
