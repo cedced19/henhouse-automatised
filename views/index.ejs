@@ -21,42 +21,49 @@
       <a href="/users/"><%=texts.USERS_LIST %></a>
       <a href="/logout"><%=texts.LOGOUT %></a>
     </p>
-    <script
-			  src="https://code.jquery.com/jquery-2.2.4.min.js"
-			  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
-			  crossorigin="anonymous"></script>
     <script type="text/javascript">
-      $(function() {
-        $.ajax({
-          url: '/api/door/'
-        })
-        .done(function(data) {
-          if (data.position === 'up') {
-             $('#position-down').hide();
+      (function() {
+        var downText = document.getElementById('position-down');
+        var upText = document.getElementById('position-up');
+        var btn = document.getElementById('toggle');
+
+        var get = function (url, cb) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url);
+          xhr.onload = function() {
+              if (xhr.status === 200) {
+                  cb(null, xhr.responseText);
+              } else {
+                  var err = new Error('Cannot get ' + url);
+                  cb(err);
+              }
+          };
+          xhr.send();
+        };
+
+        get('/api/door', function (err, data) {
+          if (err) return console.error(err);
+          if (JSON.parse(data).position === 'up') {
+             downText.style.display = 'none';
           } else {
-             $('#position-up').hide();
+             upText.style.display = 'none';
           }
-        })
-        var btn = $('#toggle');
-        btn.click(function() {
-          btn.hide();
-          $.ajax({
-            url: '/api/door/toggle'
-          })
-          .done(function(data) {
-            if (data.position === 'up') {
-               $('#position-down').hide();
-               $('#position-up').show();
-            } else {
-               $('#position-up').hide();
-               $('#position-down').show();
-            }
-          })
-          .always(function() {
-            btn.show();
-          });
         });
-      });
+        btn.onclick = function () {
+          btn.style.display = 'none';
+          get('/api/door/toggle', function (err, data) {
+            btn.style.display = 'inline-block';
+            if (err) return console.error(err);
+            if (JSON.parse(data).position === 'up') {
+               downText.style.display = 'none';
+               upText.style.display = 'block';
+            } else {
+               upText.style.display = 'none';
+               downText.style.display = 'block';
+            }
+          });
+        };
+      })();
     </script>
   </body>
 </html>
