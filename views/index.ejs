@@ -49,18 +49,24 @@
              upText.style.display = 'none';
           }
         });
+
         btn.onclick = function () {
           btn.style.display = 'none';
           get('/api/door/toggle', function (err, data) {
             btn.style.display = 'inline-block';
             if (err) return console.error(err);
-            if (JSON.parse(data).position === 'up') {
-               downText.style.display = 'none';
-               upText.style.display = 'block';
-            } else {
-               upText.style.display = 'none';
-               downText.style.display = 'block';
-            }
+            setTimeout(function(){
+              get('/api/door', function (err, data) {
+                if (err) return console.error(err);
+                if (JSON.parse(data).position === 'up') {
+                   downText.style.display = 'none';
+                   upText.style.display = 'block';
+                } else {
+                   upText.style.display = 'none';
+                   downText.style.display = 'block';
+                }
+              });
+            }, 3000);
           });
         };
       })();
