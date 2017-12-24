@@ -58,7 +58,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     store: new MongoDBStore({
-      uri: 'mongodb://localhost:27017/flydocument-encrypted',
+      uri: 'mongodb://localhost:27017/henhouse-automatised',
       collection: 'sessions'
     })
 }));
