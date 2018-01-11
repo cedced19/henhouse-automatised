@@ -28,10 +28,9 @@ var close = function(){
 
 var calc = schedule.scheduleJob('0 0 16 * * *', function(){
   var sunset = suncalc.getTimes(new Date(), 48.767102124, 7.2589588165).sunset;
-  sunset.setHours(sunset.getHours() + 2);
-  if (sunset.getHours() >= 23) sunset.setHours(sunset.getHours()-1);
+  sunset.setHours(sunset.getHours() + 1);
   sunset.setMinutes(sunset.getMinutes() + 10);
-  console.log('The door will be closed at: ' + sunset.getHours() + ':' + sunset.getMinutes());
+  console.log('The door will be closed at: ' + sunset.getHours() + ':' + ((sunset.getMinutes()<10) ? '0': '') + sunset.getMinutes());
   schedule.scheduleJob(sunset, close);
 });
 
