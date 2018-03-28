@@ -3,24 +3,24 @@ var router = express.Router();
 var auth = require('../policies/auth');
 var fs = require('fs');
 var hash = require('password-hash-and-salt');
-var config = require('../configuration.json');
+var users = require('../users.json');
 
 var getUser = function (email) {
-  for (var i in config.users) {
-    if (config.users[i].email == email) {
-      return {user: config.users[i], key: i };
+  for (var i in users) {
+    if (users[i].email == email) {
+      return {user: users[i], key: i };
     }
   }
   return false;
 };
 
-var saveConfiguration = function (cb) {
-  fs.writeFile('./configuration.json', JSON.stringify(config), cb);
+var saveUsers = function (cb) {
+  fs.writeFile('./users.json', JSON.stringify(users), cb);
 };
 
 /* GET Users: get all users */
 router.get('/', auth, function(req, res) {
-    res.locals.users = config.users;
+    res.locals.users = users;
     res.render('users-list');
 });
 
@@ -31,8 +31,8 @@ router.get('/delete/:email', auth, function(req, res) {
       res.render('success-page');
     } else {
       var user = getUser(req.params.email);
-      config.users.splice(user.key, 1);
-      saveConfiguration(function (err) {
+      users.splice(user.key, 1);
+      saveUsers(function (err) {
         if (err) {
           err = new Error('Error deleting the user.');
           err.status = 500;
@@ -47,7 +47,7 @@ router.get('/delete/:email', auth, function(req, res) {
 
 /* GET New user: create new account */
 router.get('/new/', auth, function(req, res) {
-    res.locals.connected = (config.users.length == 0);
+    res.locals.connected = (users.length == 0);
     res.render('new-account');
 });
 
@@ -55,11 +55,11 @@ router.get('/new/', auth, function(req, res) {
 router.post('/new/', auth, function(req, res, next) {
     if (!getUser(req.body.email)) {
       hash(req.body.password).hash(function(err, hash) {
-        config.users.push({
+        users.push({
           password: hash,
           email: req.body.email
         });
-        saveConfiguration(function(err) {
+        saveUsers(function(err) {
             if(err) {
               err = new Error('Error saving the new user.');
               err.status = 500;

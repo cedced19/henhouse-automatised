@@ -2,14 +2,20 @@ var schedule = require('node-schedule');
 var toggle = require('./lib/toggle.js');
 var fs = require('fs');
 var suncalc = require('suncalc');
-var join = require('path').join;
+var path = require('path');
 
-var callback = function (err) {
+require('dotenv').config({path: path.resolve(__dirname, './.env')});
+
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes*60000);
+}
+
+function callback (err) {
   if (err) throw new Error('Cannot move the door.');
 };
 
 var morning = schedule.scheduleJob('0 0 9 * * *', function(){
-  fs.readFile(join(__dirname, './status.json'), function (err, data) {
+  fs.readFile(path.join(__dirname, './status.json'), function (err, data) {
     if (err) throw new Error('Cannot get the current status ot the door.');
     if (JSON.parse(data).position === 'down') {
       toggle(callback);
@@ -18,7 +24,7 @@ var morning = schedule.scheduleJob('0 0 9 * * *', function(){
 });
 
 var close = function(){
-  fs.readFile(join(__dirname, './status.json'), function (err, data) {
+  fs.readFile(path.join(__dirname, './status.json'), function (err, data) {
     if (err) throw new Error('Cannot get the current status ot the door.');
     if (JSON.parse(data).position === 'up') {
       toggle(callback);
@@ -27,10 +33,7 @@ var close = function(){
 }
 
 var calc = schedule.scheduleJob('0 0 16 * * *', function(){
-  var sunset = suncalc.getTimes(new Date(), 48.767102124, 7.2589588165).sunset;
-  sunset.setHours(sunset.getHours() + 1);
-  sunset.setMinutes(sunset.getMinutes() + 10);
-  console.log('The door will be closed at: ' + sunset.getHours() + ':' + ((sunset.getMinutes()<10) ? '0': '') + sunset.getMinutes());
+  var sunset = addMinutes(suncalc.getTimes(new Date(), process.env.COORDS_LAT, process.env.COORDS_LNG).sunset, process.env.MARGIN_MIN);
   schedule.scheduleJob(sunset, close);
 });
 

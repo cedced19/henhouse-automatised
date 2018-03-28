@@ -1,16 +1,22 @@
 var express = require('express');
 var passport = require('passport');
 var router = express.Router();
+var suncalc = require('suncalc');
+
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes*60000);
+}
 
 /* GET home page */
 router.get('/', function(req, res, next) {
-  var config = require('../configuration.json');
-  if (config.users.length == 0) {
+  var users = require('../users.json');
+  if (users.length == 0) {
     res.redirect('/users/new');
   } else if (!req.isAuthenticated()) {
     res.redirect('/login');
   } else {
-    res.render('index');
+    var sunset = addMinutes(suncalc.getTimes(new Date(), process.env.COORDS_LAT, process.env.COORDS_LNG).sunset, process.env.MARGIN_MIN);
+    res.render('index', {sunset: sunset.getHours() + ':' + ((sunset.getMinutes()<10) ? '0': '') + sunset.getMinutes()});
   }
 });
 

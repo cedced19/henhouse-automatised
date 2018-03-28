@@ -2,3 +2,4 @@ node_modules
 tmp
 public/javascripts/scripts.js
 save.db
+users.json

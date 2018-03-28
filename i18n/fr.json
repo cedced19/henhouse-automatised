@@ -26,5 +26,7 @@
   "UPDATE_POSITION": "Modifier la position",
   "POSITION_MSG": "La porte est actuellement dans la position suivante",
   "POSITION_UP": "ouvert",
-  "POSITION_DOWN": "fermé"
+  "POSITION_DOWN": "fermé",
+  "POSITION_ERR": "erreur lors de la requête",
+  "SUNSET_MSG": "L'heure du couché du soleil est"
 }

@@ -26,5 +26,7 @@
   "UPDATE_POSITION": "Update the position",
   "POSITION_MSG": "The door is now at the following position",
   "POSITION_UP": "open",
-  "POSITION_DOWN": "close"
+  "POSITION_DOWN": "close",
+  "POSITION_ERR": "error during the request",
+  "SUNSET_MSG": "The sunset will be at"
 }

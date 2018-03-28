@@ -1,5 +1,25 @@
 #!/usr/bin/env node
 
+var path = require('path');
+var fs = require('fs');
+
+
+/**
+ * Load configuration.
+ */
+
+require('dotenv').config({path: path.resolve(__dirname, '../.env')});
+
+/**
+ * Check if users.json file exists
+ */
+
+var usersPath = path.resolve(__dirname, '../users.json');
+if (!fs.existsSync(usersPath)) {
+  fs.writeFileSync(usersPath,'[]','utf8');
+}
+
+
 /**
  * Module dependencies.
  */

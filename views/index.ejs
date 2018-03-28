@@ -13,6 +13,10 @@
       <%=texts.POSITION_MSG %>:
       <span id="position-up"><%=texts.POSITION_UP %></span>
       <span id="position-down"><%=texts.POSITION_DOWN %></span>
+      <span id="position-err" style="display: none"><%=texts.POSITION_ERR %></span>
+    </p>
+    <p>
+      <%=texts.SUNSET_MSG %>: <%=sunset %>
     </p>
     <a id="toggle" class="btn"><%=texts.UPDATE_POSITION %></a>
 
@@ -25,6 +29,7 @@
       (function() {
         var downText = document.getElementById('position-down');
         var upText = document.getElementById('position-up');
+        var errText = document.getElementById('position-err');
         var btn = document.getElementById('toggle');
 
         var get = function (url, cb) {
@@ -55,18 +60,36 @@
           get('/api/door/toggle', function (err, data) {
             btn.style.display = 'inline-block';
             if (err) return console.error(err);
-            setTimeout(function(){
-              get('/api/door', function (err, data) {
-                if (err) return console.error(err);
-                if (JSON.parse(data).position === 'up') {
-                   downText.style.display = 'none';
-                   upText.style.display = 'block';
-                } else {
-                   upText.style.display = 'none';
-                   downText.style.display = 'block';
-                }
-              });
+            var position = JSON.parse(data).position;
+            if (position === 'up') {
+               downText.style.display = 'none';
+               upText.style.display = 'inline-block';
+               errText.style.display = 'none';
+            } else if (position == 'down') {
+               downText.style.display = 'inline-block';
+               upText.style.display = 'none';
+               errText.style.display = 'none';
+            } else {
+               upText.style.display = 'none';
+               downText.style.display = 'none';
+               errText.style.display = 'inline-block';
+               setTimeout(function(){
+                get('/api/door', function (err, data) {
+                  if (err) return console.error(err);
+                  var position = JSON.parse(data).position;
+                  if (position === 'up') {
+                    downText.style.display = 'none';
+                    upText.style.display = 'inline-block';
+                    errText.style.display = 'none';
+                  }
+                  if (position == 'down') {
+                      downText.style.display = 'inline-block';
+                      upText.style.display = 'none';
+                      errText.style.display = 'none';
+                  }
+                });
             }, 3000);
+            }
           });
         };
       })();

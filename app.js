@@ -70,10 +70,10 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/api/door', door);
 
-var getUser = function (config, email) {
-  for (var i in config.users) {
-    if (config.users[i].email == email)  {
-      return config.users[i];
+var getUser = function (users, email) {
+  for (var i in users) {
+    if (users[i].email == email)  {
+      return users[i];
     }
   }
   return false;
@@ -87,8 +87,8 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(email, done) {
-      var config = require('./configuration.json');
-      var user = getUser(config, email);
+      var users = require('./users.json');
+      var user = getUser(users, email);
       done(null, {email: user.email});
 });
 
@@ -100,8 +100,8 @@ passport.use('local', new LocalStrategy({
 },
 function(req, email, password, done) {
         // search in database
-        var config = require('./configuration.json');
-        var user = getUser(config, email);
+        var users = require('./users.json');
+        var user = getUser(users, email);
         if (!user) {
           return done(null, false, req.flash('message', 'invalid-email'));
         }

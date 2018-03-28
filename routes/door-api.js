@@ -22,7 +22,11 @@ router.get('/', auth, function(req, res, next) {
 /* GET Open/Close door */
 router.get('/toggle', auth, function(req, res, next) {
     toggle(function (err, status) {
-      res.json({});
+      if (err) {
+        res.json({position: 'error'});
+      } else {
+        res.json({position: status});
+      }
     });
 });
 
