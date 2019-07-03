@@ -19,7 +19,6 @@ var LocalStrategy = require('passport-local').Strategy;
 
 var index = require('./routes/index');
 var users = require('./routes/users-api');
-var door = require('./routes/door-api');
 
 var app = express();
 
@@ -68,7 +67,6 @@ app.use(passport.session());
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/api/door', door);
 
 var getUser = function (users, email) {
   for (var i in users) {

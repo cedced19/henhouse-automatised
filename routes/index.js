@@ -1,7 +1,11 @@
 var express = require('express');
 var passport = require('passport');
-var router = express.Router();
 var suncalc = require('suncalc');
+var router = express.Router();
+var auth = require('../policies/auth.js');
+var fs = require('fs');
+var join = require('path').join;
+var toggle = require('../lib/toggle.js');
 
 function addMinutes(date, minutes) {
   return new Date(date.getTime() + minutes*60000);
@@ -39,5 +43,41 @@ router.get('/logout', function(req, res) {
     req.logout();
     res.redirect('/');
 });
+
+function statusRoute (req, res, next) {
+  fs.readFile(join(__dirname, '../status.json'), function (err, data) {
+    if (err) {
+      err = new Error('Cannot get the current status ot the door.');
+      err.status = 500;
+      return next(err);
+    }
+    var position = JSON.parse(data).position;
+    res.json({
+      position: position,
+      closed: (position == 'up') ? false : true
+    });
+  });
+}
+
+function toggleRoute (req, res, next) {
+  toggle(function (err, status) {
+    if (err) {
+      res.json({position: 'error', toggling: false});
+    } else {
+      res.json({position: status, toggling: true});
+    }
+  });
+} 
+
+/* GET Informations */
+router.get('/api/door', auth, statusRoute);
+
+/* GET Open/Close door */
+router.get('/api/door/toggle', auth, toggleRoute);
+
+/* Gate API Garage-doors-opener */
+router.get('/garage/1/toggle/' + process.env.TOKEN_KEY, toggleRoute);
+router.get('/garage/1/status/' + process.env.TOKEN_KEY, statusRoute);
+
 
 module.exports = router;
