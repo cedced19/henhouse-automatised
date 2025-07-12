@@ -37,7 +37,7 @@ var calc = schedule.scheduleJob('0 0 16 * * *', function(){
   schedule.scheduleJob(sunset, close);
 });
 
-var tonight = schedule.scheduleJob('0 0 23 * * *', close);
+var tonight = schedule.scheduleJob('0 0 20 * * *', close);
 
 var sunset = addMinutes(suncalc.getTimes(new Date(), process.env.COORDS_LAT, process.env.COORDS_LNG).sunset, process.env.MARGIN_MIN);
 schedule.scheduleJob(sunset, close);

@@ -20,6 +20,9 @@ router.get('/', function(req, res, next) {
     res.redirect('/login');
   } else {
     var sunset = addMinutes(suncalc.getTimes(new Date(), process.env.COORDS_LAT, process.env.COORDS_LNG).sunset, process.env.MARGIN_MIN);
+    var capTime = new Date(sunset);
+    capTime.setHours(20, 0, 0, 0); // 20:00:00
+    sunset = (sunset > capTime) ? capTime : sunset;
     res.render('index', {sunset: sunset.getHours() + ':' + ((sunset.getMinutes()<10) ? '0': '') + sunset.getMinutes()});
   }
 });
